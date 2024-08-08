@@ -1,0 +1,47 @@
+const playerCarImage = new Image();
+playerCarImage.src = 'images/playerCar.png'; // Path to your player car image
+
+const policeCarImage = new Image();
+policeCarImage.src = 'images/policeCar.png'; // Path to your police car image
+
+const obstacleImage = new Image();
+obstacleImage.src = 'images/obstacle.png'; // Path to your obstacle image
+
+function drawCar(car, image) {
+    ctx.drawImage(image, car.x, car.y, car.width, car.height);
+}
+
+function drawPowerUp(powerUp) {
+    ctx.fillStyle = powerUp.type === 'nitro' ? 'green' : 'gold';
+    ctx.fillRect(powerUp.x, powerUp.y, powerUp.size, powerUp.size);
+}
+
+function drawObstacle(obstacle) {
+    ctx.drawImage(obstacleImage, obstacle.x, obstacle.y, obstacle.size, obstacle.size);
+}
+
+function updateGame() {
+    if (gameOver) {
+        ctx.fillStyle = 'red';
+        ctx.font = '48px Arial';
+        ctx.fillText('Game Over!', canvas.width / 2 - 150, canvas.height / 2);
+        return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawCar(playerCar, playerCarImage);
+    movePoliceCars();
+    movePowerUps();
+    moveObstacles();
+    policeCars.forEach(car => drawCar(car, policeCarImage));
+    powerUps.forEach(drawPowerUp);
+    obstacles.forEach(drawObstacle);
+    checkCollision();
+    checkPowerUpCollision();
+    checkObstacleCollision();
+    updateScore();
+    increaseDifficulty();
+
+    requestAnimationFrame(updateGame);
+}

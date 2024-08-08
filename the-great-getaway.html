@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Great Getaway</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background: url('road.png') repeat-y center top;
+            background-size: cover;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="score">Score: 0</div>
+    <canvas id="gameCanvas" width="600" height="800"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let score = 0;
+        let gameOver = false;
+
+        const carWidth = 50;
+        const carHeight = 100;
+        const playerCar = {
+            x: canvas.width / 2 - carWidth / 2,
+            y: canvas.height - carHeight - 10,
+            width: carWidth,
+            height: carHeight,
+            color: 'blue',
+        };
+
+        const policeCars = [];
+        const policeCarWidth = 50;
+        const policeCarHeight = 100;
+
+        function drawCar(car) {
+            ctx.fillStyle = car.color;
+            ctx.fillRect(car.x, car.y, car.width, car.height);
+        }
+
+        function createPoliceCar() {
+            const x = Math.random() * (canvas.width - policeCarWidth);
+            policeCars.push({ x, y: -policeCarHeight, width: policeCarWidth, height: policeCarHeight, color: 'red' });
+        }
+
+        function movePoliceCars() {
+            policeCars.forEach((car, index) => {
+                car.y += 5;
+                if (car.y > canvas.height) {
+                    policeCars.splice(index, 1);
+                    score += 10;
+                }
+            });
+        }
+
+        function checkCollision() {
+            policeCars.forEach(car => {
+                if (
+                    playerCar.x < car.x + car.width &&
+                    playerCar.x + playerCar.width > car.x &&
+                    playerCar.y < car.y + car.height &&
+                    playerCar.y + playerCar.height > car.y
+                ) {
+                    gameOver = true;
+                }
+            });
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = 'Score: ' + score;
+        }
+
+        function updateGame() {
+            if (gameOver) {
+                ctx.fillStyle = 'red';
+                ctx.font = '48px Arial';
+                ctx.fillText('Game Over!', canvas.width / 2 - 150, canvas.height / 2);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawCar(playerCar);
+            movePoliceCars();
+            policeCars.forEach(drawCar);
+            checkCollision();
+            updateScore();
+
+            requestAnimationFrame(updateGame);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' && playerCar.x > 0) {
+                playerCar.x -= 10;
+            }
+            if (e.key === 'ArrowRight' && playerCar.x + playerCar.width < canvas.width) {
+                playerCar.x += 10;
+            }
+        });
+
+        setInterval(createPoliceCar, 1000);
+        updateGame();
+    </script>
+
+</body>
+</html>

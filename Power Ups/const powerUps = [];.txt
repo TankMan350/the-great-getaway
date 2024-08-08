@@ -1,0 +1,68 @@
+const powerUps = [];
+const powerUpSize = 30;
+const powerUpTypes = ['nitro', 'shield']; // Types of power-ups
+
+function createPowerUp() {
+    const x = Math.random() * (canvas.width - powerUpSize);
+    const type = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+    powerUps.push({ x, y: -powerUpSize, size: powerUpSize, type });
+}
+
+function movePowerUps() {
+    powerUps.forEach((powerUp, index) => {
+        powerUp.y += 4;
+        if (powerUp.y > canvas.height) {
+            powerUps.splice(index, 1);
+        }
+    });
+}
+
+function checkPowerUpCollision() {
+    powerUps.forEach((powerUp, index) => {
+        if (
+            playerCar.x < powerUp.x + powerUp.size &&
+            playerCar.x + playerCar.width > powerUp.x &&
+            playerCar.y < powerUp.y + powerUp.size &&
+            playerCar.y + playerCar.height > powerUp.y
+        ) {
+            if (powerUp.type === 'nitro') {
+                // Apply nitro boost
+                carSpeed *= 1.5;
+                setTimeout(() => carSpeed /= 1.5, 5000); // Reset after 5 seconds
+            } else if (powerUp.type === 'shield') {
+                // Apply shield
+                shieldActive = true;
+                setTimeout(() => shieldActive = false, 5000); // Shield lasts for 5 seconds
+            }
+            powerUps.splice(index, 1);
+        }
+    });
+}
+
+function updateGame() {
+    if (gameOver) {
+        ctx.fillStyle = 'red';
+        ctx.font = '48px Arial';
+        ctx.fillText('Game Over!', canvas.width / 2 - 150, canvas.height / 2);
+        return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawCar(playerCar);
+    movePoliceCars();
+    movePowerUps();
+    policeCars.forEach(drawCar);
+    powerUps.forEach(powerUp => drawPowerUp(powerUp));
+    checkCollision();
+    checkPowerUpCollision();
+    updateScore();
+    increaseDifficulty();
+
+    requestAnimationFrame(updateGame);
+}
+
+function drawPowerUp(powerUp) {
+    ctx.fillStyle = powerUp.type === 'nitro' ? 'green' : 'gold';
+    ctx.fillRect(powerUp.x, powerUp.y, powerUp.size, powerUp.size);
+}

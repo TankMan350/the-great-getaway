@@ -1,0 +1,30 @@
+let level = 1;
+const levelUpThreshold = 100; // Score needed to level up
+
+function increaseDifficulty() {
+    if (score >= level * levelUpThreshold) {
+        level++;
+        policeCarSpeed += 1; // Increase police car speed
+        setInterval(createPoliceCar, 1000 - (level * 100)); // Spawn cars faster
+    }
+}
+
+function updateGame() {
+    if (gameOver) {
+        ctx.fillStyle = 'red';
+        ctx.font = '48px Arial';
+        ctx.fillText('Game Over!', canvas.width / 2 - 150, canvas.height / 2);
+        return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawCar(playerCar);
+    movePoliceCars();
+    policeCars.forEach(drawCar);
+    checkCollision();
+    updateScore();
+    increaseDifficulty(); // Check for level up
+
+    requestAnimationFrame(updateGame);
+}

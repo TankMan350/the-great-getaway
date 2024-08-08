@@ -1,0 +1,60 @@
+const obstacles = [];
+const obstacleSize = 50;
+
+function createObstacle() {
+    const x = Math.random() * (canvas.width - obstacleSize);
+    obstacles.push({ x, y: -obstacleSize, size: obstacleSize });
+}
+
+function moveObstacles() {
+    obstacles.forEach((obstacle, index) => {
+        obstacle.y += 5;
+        if (obstacle.y > canvas.height) {
+            obstacles.splice(index, 1);
+        }
+    });
+}
+
+function checkObstacleCollision() {
+    obstacles.forEach((obstacle, index) => {
+        if (
+            playerCar.x < obstacle.x + obstacle.size &&
+            playerCar.x + playerCar.width > obstacle.x &&
+            playerCar.y < obstacle.y + obstacle.size &&
+            playerCar.y + playerCar.height > obstacle.y
+        ) {
+            gameOver = true;
+        }
+    });
+}
+
+function updateGame() {
+    if (gameOver) {
+        ctx.fillStyle = 'red';
+        ctx.font = '48px Arial';
+        ctx.fillText('Game Over!', canvas.width / 2 - 150, canvas.height / 2);
+        return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawCar(playerCar);
+    movePoliceCars();
+    movePowerUps();
+    moveObstacles();
+    policeCars.forEach(drawCar);
+    powerUps.forEach(drawPowerUp);
+    obstacles.forEach(obstacle => drawObstacle(obstacle));
+    checkCollision();
+    checkPowerUpCollision();
+    checkObstacleCollision();
+    updateScore();
+    increaseDifficulty();
+
+    requestAnimationFrame(updateGame);
+}
+
+function drawObstacle(obstacle) {
+    ctx.fillStyle = 'gray';
+    ctx.fillRect(obstacle.x, obstacle.y, obstacle.size, obstacle.size);
+}
